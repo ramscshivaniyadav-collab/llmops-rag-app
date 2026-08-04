@@ -13,9 +13,9 @@ from langchain_core.output_parsers import StrOutputParser
 #load the api keys
 load_dotenv()
 
-REPO_POOT = Path(__file__).resolve().parent.parent.parent
-PROCESSED_TRANSCRIPTS_DIR  = REPO_POOT / "data" / "processed"
-VECTOR_STORE_DIR = REPO_POOT / "saved-embeddings"
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+PROCESSED_TRANSCRIPTS_DIR  = REPO_ROOT / "data" / "processed"
+VECTOR_STORE_DIR = REPO_ROOT / "saved-embeddings"
 
 # Create the llm and embedding model
 llm  = ChatOpenAI(model ="gpt-5-mini")
@@ -66,7 +66,7 @@ else:
     vs = upsert_documents(chunk_size,chunk_overlap)
     
 # create the retriever
-retriever = vs.as_retriever(search_type='similarity',search_kwargs = {"K":3})
+retriever = vs.as_retriever(search_type='similarity',search_kwargs = {"k":3})
 
 class RAGState(TypedDict):
     query: str
@@ -77,7 +77,7 @@ class RAGState(TypedDict):
   
   
 def retrieve(state: RAGState) -> dict:
-    query = state[query]
+    query = state["query"]
     retrieved_docs =retriever.invoke(query)
     context =  "\n\n".join([doc.page_content for doc in retrieved_docs])
     
@@ -85,10 +85,10 @@ def retrieve(state: RAGState) -> dict:
            "context": context}
     
 def augmentation(state: RAGState)-> dict:
-    prompt = ChatPromptTemplate.from_message([
-        ("system","""You are a nhe;pful assistant. Answer thequery 
-         based oin the given context only . if you do not know the answer say
-         I don't Know . Do not add any preamble to the response"""),
+    prompt = ChatPromptTemplate.from_messages([
+        ("system","""You are a helpful assistant. Answer the user query
+                      based on the given context only. If you do not know the answer
+                      say I don't know. Do not add any preamble to the response"""),
         ("human","context:{context}\n\nquery: {query}")
     
     ])
