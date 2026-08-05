@@ -3,6 +3,10 @@ from pathlib import Path
 from deepeval.dataset.dataset import EvaluationDataset
 from app.rag_workflow import graph
 from deepeval.test_case.llm_test_case import LLMTestCase
+from config.parameter_config import params_config
+
+# load evaluation dataset params
+evaluation_dataset_params=params_config.evaluation_dataset
 
 #load the api keys
 load_dotenv()
@@ -35,7 +39,7 @@ for golden in golden_dataset.goldens:
     eval_dataset.add_test_case(test_case=test_case)
     
 eval_dataset.save_as(
-    file_name="evaluation_dataset_final",
+    file_name=evaluation_dataset_params.evaluation_dataset_filename,
     file_type="json",
     directory=EVALUATION_DATA_DIR,
     include_test_cases=True

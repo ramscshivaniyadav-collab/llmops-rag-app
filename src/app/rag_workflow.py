@@ -10,6 +10,10 @@ from langgraph.graph import StateGraph , START, END
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langfuse import get_client
+from config.parameter_config import params_config
+
+#Load the application parameter
+app_params = params_config.rag_app
 
 #load the api keys
 load_dotenv()
@@ -22,7 +26,7 @@ langfuse = get_client()
 system_prompt = langfuse.get_prompt(
     name = "rag_app_system_prompt",
     type= 'text',
-    label= 'test'
+    label= app_params.prompt_label
 )
 
 
@@ -32,13 +36,13 @@ PROCESSED_TRANSCRIPTS_DIR  = REPO_ROOT / "data" / "processed"
 VECTOR_STORE_DIR = REPO_ROOT / "saved-embeddings"
 
 # Create the llm and embedding model
-llm  = ChatOpenAI(model ="gpt-5-mini")
+llm  = ChatOpenAI(model =app_params.llm)
 
-embedder = OpenAIEmbeddings(model ="text-embedding-3-small",
-                 dimensions= 1024)
+embedder = OpenAIEmbeddings(model =app_params.embedding_model,
+                 dimensions= app_params.embedding_dimensions)
 
-chunk_size = 300
-chunk_overlap = 30
+chunk_size = app_params.chunk_size
+chunk_overlap = app_params.chunk_overlap
 
 #load and update Knowledge base
 def upsert_documents(chunk_size: int, chunk_overlap: int):
@@ -52,13 +56,13 @@ def upsert_documents(chunk_size: int, chunk_overlap: int):
     # chunk the  text , sized in tokens(o200k_base matches the gpt-5 model family)
     # to mirror DeepEval's ContextConstructionConfig chunk sizing
     chunker = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
-        encoding_name="o200k_base",
+        encoding_name=app_params.tokenizer_encoding,
         chunk_size = chunk_size,
         chunk_overlap = chunk_overlap)
     chunks = chunker.split_documents(docs)
     
     # vector store
-    vs = Chroma(collection_name="rag_demo",
+    vs = Chroma(collection_name=app_params.collection_name,
            embedding_function= embedder,
            persist_directory=VECTOR_STORE_DIR.as_posix())
     
@@ -69,7 +73,7 @@ def upsert_documents(chunk_size: int, chunk_overlap: int):
 
 def load_knowledge_base():
     #vector store
-    vs = Chroma(collection_name="rag_demo",
+    vs = Chroma(collection_name=app_params.collection_name,
            embedding_function=embedder,
            persist_directory=VECTOR_STORE_DIR.as_posix())
     return vs
@@ -80,7 +84,7 @@ else:
     vs = upsert_documents(chunk_size,chunk_overlap)
     
 # create the retriever
-retriever = vs.as_retriever(search_type='similarity',search_kwargs = {"k":3})
+retriever = vs.as_retriever(search_type=app_params.search_type,search_kwargs = {"k":app_params.k})
 
 class RAGState(TypedDict):
     query: str
