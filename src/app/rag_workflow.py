@@ -9,9 +9,23 @@ from langchain_core.documents import Document
 from langgraph.graph import StateGraph , START, END
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
+from langfuse import get_client
 
 #load the api keys
 load_dotenv()
+
+# langfuse client
+langfuse = get_client()
+
+# load the system prompt
+
+system_prompt = langfuse.get_prompt(
+    name = "rag_app_system_prompt",
+    type= 'text',
+    label= 'test'
+)
+
+
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 PROCESSED_TRANSCRIPTS_DIR  = REPO_ROOT / "data" / "processed"
@@ -86,9 +100,7 @@ def retrieve(state: RAGState) -> dict:
     
 def augmentation(state: RAGState)-> dict:
     prompt = ChatPromptTemplate.from_messages([
-        ("system","""You are a helpful assistant. Answer the user query
-                      based on the given context only. If you do not know the answer
-                      say I don't know. Do not add any preamble to the response"""),
+        ("system",system_prompt.prompt),
         ("human","context:{context}\n\nquery: {query}")
     
     ])
