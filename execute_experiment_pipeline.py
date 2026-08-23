@@ -9,6 +9,9 @@ import logging
 from logging import INFO
 from data.generate_eval_dataset import generate_evaluation_dataset
 from evals.application_evals.evaluate_rag_app import evaluate_app
+import dagshub
+from mlflow_utils import log_run_info
+
 
 #load the api key
 load_dotenv()
@@ -94,8 +97,13 @@ def return_code_files():
 
 if __name__ == "__main__":
     
+    # initialize dagshub and mlflow
+    dagshub.init(repo_owner='ramscshivaniyadav-collab', repo_name='llmops-rag-app', mlflow=True)
+
+    
+    
     #set the tracking server
-    mlflow.set_tracking_uri("http://127.0.0.1:5000/")
+    mlflow.set_tracking_uri("https://dagshub.com/ramscshivaniyadav-collab/llmops-rag-app.mlflow")
     
     #set the experiment name 
     mlflow.set_experiment("rag-app")
@@ -167,4 +175,14 @@ if __name__ == "__main__":
         for code_file in code_files:
             mlflow.log_artifact(code_file,"code")
         logger.info("code files logged")
+        
+        # set tag for run
+        mlflow.set_tag("phase","historical_threshold")
+        
+    # extract info from run
+    run_id = run.info.run_id
+    run_name = run.info.run_name
+    
+    #log to json file
+    log_run_info(run_id,run_name)
     

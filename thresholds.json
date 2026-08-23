@@ -1,0 +1,20 @@
+{
+    "noise_thresholds": {
+        "Contextual Recall": 0.028867513459481315,
+        "Contextual Precision": 0.005773502691896262,
+        "Answer Relevancy": 0.060827625302982184,
+        "Faithfulness": 0.005773502691896263,
+        "Contextual Relevancy": 0.01527525231651948,
+        "answer correctness ": 0.017320508075688724,
+        "simple explanation ": 0.011547005383792525
+    },
+    "historical_thresholds": {
+        "Contextual Recall": 0.033911649915626375,
+        "Contextual Precision": 0.008944271909999166,
+        "Answer Relevancy": 0.019235384061671322,
+        "Faithfulness": 0.013038404810405309,
+        "Contextual Relevancy": 0.0661815684310972,
+        "answer correctness ": 0.016431676725154998,
+        "simple explanation ": 0.019493588689617945
+    }
+}

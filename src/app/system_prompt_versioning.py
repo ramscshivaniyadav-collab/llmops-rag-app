@@ -25,7 +25,7 @@ created_prompt = langfuse.create_prompt(
     name = "rag_app_system_prompt",
     type="text",
     prompt=system_prompt,
-    labels=["test"],
+    labels=["staging"],
     config={
         "chunk_size":chunk_size,
         "chunk_overlap": chunk_overlap,
